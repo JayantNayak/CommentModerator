@@ -1,7 +1,7 @@
 package com.target.moderator.api;
 
-import javax.ws.rs.core.Response;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +20,14 @@ import com.target.moderator.service.ModeratorService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 @RestController
 @RequestMapping("/")
 public class ModeratorAPI {
+	
+	//Logger logger = LogManager.getLogger(ModeratorAPI.class);
+	 private static final Logger logger = LoggerFactory.getLogger(ModeratorAPI.class);
+	   
+
 	@Autowired
     RestTemplate restTemplate;
 	
@@ -38,13 +42,16 @@ public class ModeratorAPI {
 			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found") })
 	@PostMapping("moderate")
 	public ResponseEntity<?> evaluateComment(@RequestBody RequestComment req){
+		System.out.println(logger);
+		logger.info("[RequestComment] "+req);
 		ResponseEntity<?> response = null;
 		ResponseComment  rc = null;
 		try {
 			rc=  moderatorService.analyzeComment(req);
 			response = new ResponseEntity<ResponseComment>(rc,HttpStatus.OK);
+			logger.info("[Response] "+response);
 		} catch (ModeratorException e) {
-			System.out.println(e.getMessage());
+			logger.error("[ERROR] "+e.getErrorMsg());
 			response = new ResponseEntity<ErrorMessage>(e.getErrorMsg(), e.getStatus());
 			
 			

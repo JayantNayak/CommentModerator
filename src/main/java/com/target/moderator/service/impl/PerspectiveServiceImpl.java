@@ -99,7 +99,7 @@ public class PerspectiveServiceImpl implements ModeratorService {
 		}
 		
 		if(requestComment.getComment().trim().length() == 0){
-			errorMsg.addErrorMessage("please provide a valid comment");
+			errorMsg.addErrorMessage("Please provide a valid comment");
 			result = true;
 		}
 		

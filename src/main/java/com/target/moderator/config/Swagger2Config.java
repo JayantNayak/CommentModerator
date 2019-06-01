@@ -23,8 +23,8 @@ public class Swagger2Config {
 	}
 
 	private ApiInfo apiEndPointsInfo() {
-		return new ApiInfoBuilder().title("API").description("User REST API")
-				.contact(new Contact("Thanos", "www.smith.com", "aa@gmail.com")).license("Apache 2.0")
+		return new ApiInfoBuilder().title("MODERATOR API").description("User REST API")
+				.contact(new Contact("Jayant", "", "jayant.kumar.nayak92@gmail.com")).license("Apache 2.0")
 				.licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html").version("1.0.0").build();
 	}
 }
