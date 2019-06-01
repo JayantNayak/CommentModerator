@@ -2,11 +2,15 @@ package com.target.moderator.exception;
 
 import org.springframework.http.HttpStatus;
 
+import com.target.moderator.model.perspectiveapi.ErrorMessage;
+
 public class ModeratorException extends Exception {
 	private HttpStatus status;
+	private ErrorMessage errorMsg;
 
-	public ModeratorException(String errorMsg, HttpStatus status) {
-		super(errorMsg);
+	public ModeratorException(ErrorMessage errorMsg, HttpStatus status) {
+		super(errorMsg.getErrorMessage().toString());
+		this.errorMsg=errorMsg;
 		this.status = status;
 
 	}
@@ -14,4 +18,9 @@ public class ModeratorException extends Exception {
 	public HttpStatus getStatus() {
 		return status;
 	}
+
+	public ErrorMessage getErrorMsg() {
+		return errorMsg;
+	}
+	
 }

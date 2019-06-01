@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import com.target.moderator.exception.ModeratorException;
 import com.target.moderator.model.RequestComment;
 import com.target.moderator.model.ResponseComment;
+import com.target.moderator.model.perspectiveapi.ErrorMessage;
 import com.target.moderator.service.ModeratorService;
 
 import io.swagger.annotations.ApiOperation;
@@ -40,19 +41,11 @@ public class ModeratorAPI {
 		ResponseEntity<?> response = null;
 		ResponseComment  rc = null;
 		try {
-			
 			rc=  moderatorService.analyzeComment(req);
 			response = new ResponseEntity<ResponseComment>(rc,HttpStatus.OK);
-			
-			
-			
 		} catch (ModeratorException e) {
-			
 			System.out.println(e.getMessage());
-			/*Response.status(e.getStatus())
-			.entity(returnString).build();*/
-			
-			response = new ResponseEntity<String>(e.getMessage(),e.getStatus());
+			response = new ResponseEntity<ErrorMessage>(e.getErrorMsg(), e.getStatus());
 			
 			
 		}

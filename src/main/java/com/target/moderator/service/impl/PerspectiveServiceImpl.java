@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.target.moderator.exception.ModeratorException;
 import com.target.moderator.model.RequestComment;
 import com.target.moderator.model.ResponseComment;
+import com.target.moderator.model.perspectiveapi.ErrorMessage;
 import com.target.moderator.model.perspectiveapi.PerspectiveRequest;
 import com.target.moderator.service.ModeratorService;
 
@@ -83,19 +84,27 @@ public class PerspectiveServiceImpl implements ModeratorService {
 	@Override
 	public boolean validateRequest(RequestComment requestComment) throws ModeratorException {
 		String incomingLang = requestComment.getLanguage();
+
+		ErrorMessage errorMsg=new ErrorMessage();
 		boolean result = false;
+		boolean isPresent=false;
 		for(String supportedLang: getSupportedLanguages()){
 			if(supportedLang.equalsIgnoreCase(incomingLang)){
-				result = true;
+				isPresent = true;
 				break;
 			}
 		}
+		if(!isPresent){
+			errorMsg.addErrorMessage("Language Not Supported.");
+		}
 		
-		// check if string only contains special characters
+		if(requestComment.getComment().trim().length() == 0){
+			errorMsg.addErrorMessage("please provide a valid comment");
+			result = true;
+		}
 		
-		
-		if(!result){
-			throw new ModeratorException("Language Not Supported.",HttpStatus.BAD_REQUEST);
+		if(result || !isPresent){
+			throw new ModeratorException(errorMsg, HttpStatus.BAD_REQUEST);
 		}
 		return result;
 	}
