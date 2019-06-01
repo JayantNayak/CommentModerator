@@ -2,6 +2,8 @@ package com.target.moderator.service.impl;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.target.moderator.api.ModeratorAPI;
 import com.target.moderator.exception.ModeratorException;
 import com.target.moderator.model.RequestComment;
 import com.target.moderator.model.ResponseComment;
@@ -20,6 +23,9 @@ import com.target.moderator.service.ModeratorService;
 
 @Component
 public class PerspectiveServiceImpl implements ModeratorService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(PerspectiveServiceImpl.class);	   
+
 	@Autowired
 	RestTemplate restTemplate;
 	
@@ -41,20 +47,31 @@ public class PerspectiveServiceImpl implements ModeratorService {
 
 	@Override
 	public ResponseComment analyzeComment(RequestComment requestComment) throws ModeratorException {
-
+		logger.info("[Comment] "+requestComment);
 		if(url == null){
 			intialiseUrl();
 		}
 		validateRequest(requestComment);
 		PerspectiveRequest pr = new PerspectiveRequest(requestComment.getComment(), requestComment.getLanguage());
-		ResponseEntity<String> res = restTemplate.postForEntity(url, pr, String.class);
-		System.out.println(res.getBody());
+		ResponseEntity<String> res = null;
+		ResponseComment rsp=null;
+		try{
+			res = restTemplate.postForEntity(url, pr, String.class);
 
-		ResponseComment rsp = constructResponse(res.getBody());
-		if (rsp != null) {
-			rsp.setComment(requestComment.getComment());
+			rsp = constructResponse(res.getBody());
+			if (rsp != null) {
+				rsp.setComment(requestComment.getComment());
+			}
+
 		}
-
+		catch(Exception e){
+			logger.error("[ERROR] "+e.getMessage());
+			ErrorMessage errorMsg=new ErrorMessage();
+			errorMsg.addErrorMessage("Internal Server Error. Please check the logs");
+			throw new ModeratorException(errorMsg,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		
 		return rsp;
 	}
 
