@@ -1,5 +1,8 @@
 package com.target.moderator.model;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel(description = "Fields of a Request Comment")
 public class RequestComment {
 	private String comment;
 	private String language;

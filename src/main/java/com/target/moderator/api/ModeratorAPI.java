@@ -1,5 +1,7 @@
 package com.target.moderator.api;
 
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,14 @@ import com.target.moderator.model.ResponseComment;
 import com.target.moderator.model.perspectiveapi.ErrorMessage;
 import com.target.moderator.service.ModeratorService;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 @RestController
 @RequestMapping("/")
+@Api(value="Comment Evaluator", description="Helps to evaluate your comments before going live")
 public class ModeratorAPI {
 	
 	//Logger logger = LogManager.getLogger(ModeratorAPI.class);
@@ -35,13 +40,14 @@ public class ModeratorAPI {
 	ModeratorService moderatorService; 
 	
 	
-	@ApiOperation(value = "Evaluates your comment. Currently we only support three languages(en, fr, es).")
+	@ApiOperation(value = "Evaluates your comment. Currently we only support three languages(en, fr, es).", response = ResponseEntity.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully posted"),
 			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
 			@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
 			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found") })
 	@PostMapping("moderate")
-	public ResponseEntity<?> evaluateComment(@RequestBody RequestComment req){
+	public ResponseEntity<?> evaluateComment(@ApiParam(value = "Comment body to be posted", required = true) @Valid 
+											 @RequestBody RequestComment req){
 		System.out.println(logger);
 		logger.info("[RequestComment] "+req);
 		ResponseEntity<?> response = null;

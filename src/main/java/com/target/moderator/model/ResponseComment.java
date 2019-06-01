@@ -1,5 +1,8 @@
 package com.target.moderator.model;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel(description = "Fields of a Response body")
 public class ResponseComment {
 	private double score;
 	private String comment;
