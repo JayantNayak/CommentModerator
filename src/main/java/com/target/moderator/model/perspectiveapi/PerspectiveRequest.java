@@ -1,5 +1,6 @@
 package com.target.moderator.model.perspectiveapi;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PerspectiveRequest {
@@ -9,9 +10,10 @@ public class PerspectiveRequest {
 	
 	PerspectiveRequest(){}
 	
-	public PerspectiveRequest(String comment, List<String> languages){
+	public PerspectiveRequest(String comment, String language){
 		this.comment = new Comment(comment);
-		this.languages = languages;
+		this.languages = new ArrayList<>();
+		languages.add(language.toLowerCase());
 		this.requestedAttributes = new RequestedAttributes();
 	}
 	

@@ -4,12 +4,14 @@ import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.target.moderator.exception.ModeratorException;
 import com.target.moderator.model.RequestComment;
 import com.target.moderator.model.ResponseComment;
 import com.target.moderator.model.perspectiveapi.PerspectiveRequest;
@@ -22,7 +24,8 @@ public class PerspectiveServiceImpl implements ModeratorService {
 	
 	@Autowired
 	private Environment env;
-
+	
+	private final String [] supportedLanguages = {"en","fr","es"};
 	
 	private  String url = null;
 	
@@ -36,13 +39,13 @@ public class PerspectiveServiceImpl implements ModeratorService {
 	}
 
 	@Override
-	public ResponseComment analyzeComment(RequestComment requestComment) {
+	public ResponseComment analyzeComment(RequestComment requestComment) throws ModeratorException {
 
 		if(url == null){
 			intialiseUrl();
 		}
-	
-		PerspectiveRequest pr = new PerspectiveRequest(requestComment.getComment(), requestComment.getLanguages());
+		validateRequest(requestComment);
+		PerspectiveRequest pr = new PerspectiveRequest(requestComment.getComment(), requestComment.getLanguage());
 		ResponseEntity<String> res = restTemplate.postForEntity(url, pr, String.class);
 		System.out.println(res.getBody());
 
@@ -69,6 +72,32 @@ public class PerspectiveServiceImpl implements ModeratorService {
 		}
 
 		return rspComment;
+	}
+
+	@Override
+	public String[] getSupportedLanguages() {
+		
+		return supportedLanguages;
+	}
+
+	@Override
+	public boolean validateRequest(RequestComment requestComment) throws ModeratorException {
+		String incomingLang = requestComment.getLanguage();
+		boolean result = false;
+		for(String supportedLang: getSupportedLanguages()){
+			if(supportedLang.equalsIgnoreCase(incomingLang)){
+				result = true;
+				break;
+			}
+		}
+		
+		// check if string only contains special characters
+		
+		
+		if(!result){
+			throw new ModeratorException("Language Not Supported.",HttpStatus.BAD_REQUEST);
+		}
+		return result;
 	}
 
 }

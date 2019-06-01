@@ -1,20 +1,18 @@
 package com.target.moderator.model;
 
-import java.util.List;
-
 public class RequestComment {
 	private String comment;
-	private List<String> languages;
+	private String language;
 	public String getComment() {
 		return comment;
 	}
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
-	public List<String> getLanguages() {
-		return languages;
+	public String getLanguage() {
+		return language;
 	}
-	public void setLanguages(List<String> languages) {
-		this.languages = languages;
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 }
