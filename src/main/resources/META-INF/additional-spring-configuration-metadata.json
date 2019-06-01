@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "perspectiveapi_url",
+    "type": "java.lang.String",
+    "description": "A description for 'perspectiveapi_url'"
+  },
+  {
+    "name": "perspectiveapi_key",
+    "type": "java.lang.String",
+    "description": "A description for 'perspectiveapi_key'"
+  }
+]}
