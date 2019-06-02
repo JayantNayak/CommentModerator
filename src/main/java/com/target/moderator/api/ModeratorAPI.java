@@ -41,9 +41,7 @@ public class ModeratorAPI {
 
 	@ApiOperation(value = "Evaluates your comment. Currently we only support three languages(en, fr, es).", response = ResponseEntity.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully posted"),
-			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
-			@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found") })
+	@ApiResponse(code = 404, message = "The resource you were trying to reach is not found") })
 	@PostMapping("moderate")
 	public ResponseEntity<?> evaluateComment(
 			@ApiParam(value = "Comment body to be posted", required = true) @Valid @RequestBody RequestComment req) {
