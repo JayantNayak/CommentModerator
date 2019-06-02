@@ -1,0 +1,9 @@
+---
+applications:
+- name: CommentModerator
+  path: target/moderator-0.0.1-SNAPSHOT.jar
+  buildpack: java_buildpack
+  env:
+      # Use the non-blocking /dev/urandom instead of the default to generate random numbers.
+      # This may help with slow startup times, especially when using Spring Boot.
+      JAVA_OPTS: -Djava.security.egd=file:///dev/./urandom

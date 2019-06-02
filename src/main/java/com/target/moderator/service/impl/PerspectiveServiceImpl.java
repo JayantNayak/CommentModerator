@@ -13,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.target.moderator.api.ModeratorAPI;
 import com.target.moderator.exception.ModeratorException;
 import com.target.moderator.model.RequestComment;
 import com.target.moderator.model.ResponseComment;
@@ -23,39 +22,37 @@ import com.target.moderator.service.ModeratorService;
 
 @Component
 public class PerspectiveServiceImpl implements ModeratorService {
-	
-	private static final Logger logger = LoggerFactory.getLogger(PerspectiveServiceImpl.class);	   
+
+	private static final Logger logger = LoggerFactory.getLogger(PerspectiveServiceImpl.class);
 
 	@Autowired
 	RestTemplate restTemplate;
-	
+
 	@Autowired
 	private Environment env;
-	
-	private final String [] supportedLanguages = {"en","fr","es"};
-	
-	private  String url = null;
-	
-	
+
+	private final String[] supportedLanguages = { "en", "fr", "es" };
+
+	private String url = null;
 
 	public String intialiseUrl() {
-		if(url == null){
-			url = env.getProperty("perspectiveapi_url")+"?key="+env.getProperty("perspectiveapi_key");
+		if (url == null) {
+			url = env.getProperty("perspectiveapi_url") + "?key=" + env.getProperty("perspectiveapi_key");
 		}
 		return url;
 	}
 
 	@Override
 	public ResponseComment analyzeComment(RequestComment requestComment) throws ModeratorException {
-		logger.info("[Comment] "+requestComment);
-		if(url == null){
+		logger.debug("[Comment] " + requestComment);
+		if (url == null) {
 			intialiseUrl();
 		}
 		validateRequest(requestComment);
 		PerspectiveRequest pr = new PerspectiveRequest(requestComment.getComment(), requestComment.getLanguage());
 		ResponseEntity<String> res = null;
-		ResponseComment rsp=null;
-		try{
+		ResponseComment rsp = null;
+		try {
 			res = restTemplate.postForEntity(url, pr, String.class);
 
 			rsp = constructResponse(res.getBody());
@@ -63,38 +60,31 @@ public class PerspectiveServiceImpl implements ModeratorService {
 				rsp.setComment(requestComment.getComment());
 			}
 
-		}
-		catch(Exception e){
-			logger.error("[ERROR] "+e.getMessage());
-			ErrorMessage errorMsg=new ErrorMessage();
+		} catch (Exception e) {
+			logger.error("[ERROR] "+e.getMessage(), e);
+			ErrorMessage errorMsg = new ErrorMessage();
 			errorMsg.addErrorMessage("Internal Server Error. Please check the logs");
-			throw new ModeratorException(errorMsg,HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new ModeratorException(errorMsg, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		
-		
+
 		return rsp;
 	}
 
-	private ResponseComment constructResponse(String body) {
+	private ResponseComment constructResponse(String body) throws IOException {
 		ResponseComment rspComment = null;
 		ObjectMapper objectMapper = new ObjectMapper();
 
-		try {
-			JsonNode rsp = objectMapper.readTree(body.getBytes());
-			double score = rsp.get("attributeScores").get("TOXICITY").get("summaryScore").get("value").asDouble();
+		JsonNode rsp = objectMapper.readTree(body.getBytes());
+		double score = rsp.get("attributeScores").get("TOXICITY").get("summaryScore").get("value").asDouble();
 
-			rspComment = new ResponseComment(score);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		rspComment = new ResponseComment(score);
 
 		return rspComment;
 	}
 
 	@Override
 	public String[] getSupportedLanguages() {
-		
+
 		return supportedLanguages;
 	}
 
@@ -102,25 +92,25 @@ public class PerspectiveServiceImpl implements ModeratorService {
 	public boolean validateRequest(RequestComment requestComment) throws ModeratorException {
 		String incomingLang = requestComment.getLanguage();
 
-		ErrorMessage errorMsg=new ErrorMessage();
+		ErrorMessage errorMsg = new ErrorMessage();
 		boolean result = false;
-		boolean isPresent=false;
-		for(String supportedLang: getSupportedLanguages()){
-			if(supportedLang.equalsIgnoreCase(incomingLang)){
+		boolean isPresent = false;
+		for (String supportedLang : getSupportedLanguages()) {
+			if (supportedLang.equalsIgnoreCase(incomingLang)) {
 				isPresent = true;
 				break;
 			}
 		}
-		if(!isPresent){
+		if (!isPresent) {
 			errorMsg.addErrorMessage("Language Not Supported.");
 		}
-		
-		if(requestComment.getComment().trim().length() == 0){
+
+		if (requestComment.getComment().trim().length() == 0) {
 			errorMsg.addErrorMessage("Please provide a valid comment");
 			result = true;
 		}
-		
-		if(result || !isPresent){
+
+		if (result || !isPresent) {
 			throw new ModeratorException(errorMsg, HttpStatus.BAD_REQUEST);
 		}
 		return result;

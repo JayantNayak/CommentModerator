@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import com.target.moderator.model.perspectiveapi.ErrorMessage;
 
 public class ModeratorException extends Exception {
+
+	private static final long serialVersionUID = -3746562963198843188L;
 	private HttpStatus status;
 	private ErrorMessage errorMsg;
 
